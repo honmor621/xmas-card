@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Merry Christmas Surprise!</title>
+  <style>
+    body {
+      margin: 0; padding: 0; background-color: #050a14; /* 更深邃的午夜藍 */
+      height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      overflow: hidden; font-family: 'Roboto', sans-serif;
+    }
+
+    .greeting { text-align: center; margin-bottom: 30px; height: 100px; }
+
+    /* 標題與提示語：香檳金色調 */
+    h1 { 
+      font-size: 2.8em; margin: 0; text-shadow: 0 0 20px rgba(255,215,0,0.5); 
+      color: #f8f1e5; /* 象牙白 */
+      opacity: 0; transition: opacity 1.5s ease-in;
+    }
+    p { 
+      font-size: 1.1em; color: #d4af37; /* 香檳金 */
+      margin-top: 10px; opacity: 0; transition: opacity 1s ease-in; 
+    }
+
+    .tree-container {
+      position: relative; width: 200px; height: 320px;
+      -webkit-perspective: 1200px; perspective: 1200px;
+    }
+
+    .tree {
+      position: relative; width: 100%; height: 100%;
+      transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
+      animation: rotateTree 15s linear infinite; /* 稍微放慢旋轉速度，更優雅 */
+    }
+
+    @keyframes rotateTree { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+
+    /* 樹頂星星 - 香檳金 */
+    .star-top {
+      position: absolute; top: -45px; left: 50%;
+      transform: translateX(-50%) scale(0);
+      color: #FFD700; font-size: 55px; text-shadow: 0 0 30px gold;
+      z-index: 20; cursor: pointer; user-select: none;
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s;
+    }
+
+    .star-top.show { transform: translateX(-50%) scale(1); opacity: 1; }
+    .star-top:hover { transform: translateX(-50%) scale(1.3) rotate(15deg); }
+
+    .dot {
+      position: absolute; width: 4.5px; height: 4.5px; border-radius: 50%;
+      opacity: 0; transform: scale(0);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; filter: brightness(1.8); }
+      50% { opacity: 0.3; filter: brightness(0.5); }
+    }
+
+    /* 雪花彩帶 */
+    .confetti {
+      position: fixed; width: 8px; height: 8px; z-index: 100;
+      top: -20px; animation: confettiRain linear forwards;
+    }
+
+    @keyframes confettiRain {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="greeting">
+    <h1 id="mainTitle">Merry Christmas!</h1>
+    <p id="hintText">點擊頂部金星，許下你的願望 ✨</p>
+  </div>
+
+  <div class="tree-container">
+    <div class="tree" id="xmasTree">
+      <div class="star-top" id="luckyStar">★</div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tree = document.getElementById('xmasTree');
+      const star = document.getElementById('luckyStar');
+      const title = document.getElementById('mainTitle');
+      const hint = document.getElementById('hintText');
+
+      // 🎨 新配色方案：香檳金、象牙白、松針綠、雪銀色
+      const colors = ['#f8f1e5', '#FFD700', '#2d5a27', '#e0e0e0']; 
+
+      const dotCount = 350; // 稍微再增加數量，更細膩
+      const dots = [];
+
+      for (let i = 0; i < dotCount; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        const y = i * 0.95; // 縮小間距，讓樹形更實心
+        const angle = i * 0.32; 
+        const radius = (i / dotCount) * 95; 
+        const centerX = 100;
+
+        const tx = Math.cos(angle) * radius + centerX;
+        const tz = Math.sin(angle) * radius;
+        dot.style.transform = `translate3d(${tx}px, ${y}px, ${tz}px) scale(0)`;
+        
+        // 分配顏色：大部分為綠與金，點綴白與銀
+        const color = colors[i % 4];
+        dot.style.background = color;
+        dot.style.boxShadow = `0 0 8px ${color}`;
+        
+        tree.appendChild(dot);
+        dots.push({ el: dot, tx: tx, ty: y, tz: tz });
+      }
+
+      const drawTree = () => {
+        dots.reverse().forEach((dotObj, index) => {
+          setTimeout(() => {
+            dotObj.el.style.opacity = "1";
+            dotObj.el.style.transform = `translate3d(${dotObj.tx}px, ${dotObj.ty}px, ${dotObj.tz}px) scale(1)`;
+            
+            setTimeout(() => {
+              dotObj.el.style.animation = `blink ${Math.random() * 2 + 2}s infinite`;
+            }, 400);
+          }, index * 8); // 長樹速度稍微加快
+        });
+
+        setTimeout(() => {
+          star.classList.add('show');
+          setTimeout(() => { title.style.opacity = "1"; }, 600);
+          setTimeout(() => { hint.style.opacity = "0.9"; }, 1600);
+        }, dotCount * 8 + 500);
+      };
+
+      setTimeout(drawTree, 600);
+
+      star.addEventListener('click', () => {
+        startConfettiRain();
+        tree.style.animationDuration = '2.5s';
+        setTimeout(() => { tree.style.animationDuration = '15s'; }, 4000);
+      });
+
+      function startConfettiRain() {
+        // 彩帶也換成金、銀、白、淺藍雪花色
+        const confettiColors = ['#FFD700', '#FFFFFF', '#C0C0C0', '#B0E0E6'];
+        for (let i = 0; i < 150; i++) {
+          setTimeout(() => {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+            const duration = Math.random() * 3 + 2.5;
+            c.style.animationDuration = duration + 's';
+            c.style.borderRadius = i % 2 === 0 ? '50%' : '0'; // 圓點（雪花）與方塊混合
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), duration * 1000);
+          }, i * 20);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
