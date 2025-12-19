@@ -2,10 +2,10 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Merry Christmas Surprise!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Merry Christmas Surprise!</title>
   <style>
     body {
-      margin: 0; padding: 0; background-color: #050a14; /* 更深邃的午夜藍 */
+      margin: 0; padding: 0; background-color: #050a14;
       height: 100vh; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       overflow: hidden; font-family: 'Roboto', sans-serif;
@@ -13,15 +13,13 @@
 
     .greeting { text-align: center; margin-bottom: 30px; height: 100px; }
 
-    /* 標題與提示語：香檳金色調 */
     h1 { 
-      font-size: 2.8em; margin: 0; text-shadow: 0 0 20px rgba(255,215,0,0.5); 
-      color: #f8f1e5; /* 象牙白 */
-      opacity: 0; transition: opacity 1.5s ease-in;
+      font-size: 2.5em; margin: 0; text-shadow: 0 0 20px rgba(255,215,0,0.5); 
+      color: #f8f1e5; opacity: 0; transition: opacity 1.5s ease-in;
     }
     p { 
-      font-size: 1.1em; color: #d4af37; /* 香檳金 */
-      margin-top: 10px; opacity: 0; transition: opacity 1s ease-in; 
+      font-size: 1.1em; color: #d4af37; margin-top: 10px; 
+      opacity: 0; transition: opacity 1s ease-in; 
     }
 
     .tree-container {
@@ -32,18 +30,22 @@
     .tree {
       position: relative; width: 100%; height: 100%;
       transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
-      animation: rotateTree 15s linear infinite; /* 稍微放慢旋轉速度，更優雅 */
+      animation: rotateTree 15s linear infinite;
     }
 
     @keyframes rotateTree { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
 
-    /* 樹頂星星 - 香檳金 */
+    /* --- ⭐ 星星手機優化區 --- */
     .star-top {
-      position: absolute; top: -45px; left: 50%;
+      position: absolute; top: -55px; left: 50%;
       transform: translateX(-50%) scale(0);
       color: #FFD700; font-size: 55px; text-shadow: 0 0 30px gold;
-      z-index: 20; cursor: pointer; user-select: none;
+      z-index: 100; cursor: pointer; user-select: none;
       opacity: 0;
+      /* 關鍵：增加透明點擊區，移除手機藍框 */
+      padding: 30px; 
+      margin-top: -20px;
+      -webkit-tap-highlight-color: transparent; 
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s;
     }
 
@@ -61,7 +63,6 @@
       50% { opacity: 0.3; filter: brightness(0.5); }
     }
 
-    /* 雪花彩帶 */
     .confetti {
       position: fixed; width: 8px; height: 8px; z-index: 100;
       top: -20px; animation: confettiRain linear forwards;
@@ -92,17 +93,15 @@
       const star = document.getElementById('luckyStar');
       const title = document.getElementById('mainTitle');
       const hint = document.getElementById('hintText');
-
-      // 🎨 新配色方案：香檳金、象牙白、松針綠、雪銀色
       const colors = ['#f8f1e5', '#FFD700', '#2d5a27', '#e0e0e0']; 
 
-      const dotCount = 350; // 稍微再增加數量，更細膩
+      const dotCount = 350;
       const dots = [];
 
       for (let i = 0; i < dotCount; i++) {
         const dot = document.createElement('div');
         dot.className = 'dot';
-        const y = i * 0.95; // 縮小間距，讓樹形更實心
+        const y = i * 0.95; 
         const angle = i * 0.32; 
         const radius = (i / dotCount) * 95; 
         const centerX = 100;
@@ -111,7 +110,6 @@
         const tz = Math.sin(angle) * radius;
         dot.style.transform = `translate3d(${tx}px, ${y}px, ${tz}px) scale(0)`;
         
-        // 分配顏色：大部分為綠與金，點綴白與銀
         const color = colors[i % 4];
         dot.style.background = color;
         dot.style.boxShadow = `0 0 8px ${color}`;
@@ -125,11 +123,10 @@
           setTimeout(() => {
             dotObj.el.style.opacity = "1";
             dotObj.el.style.transform = `translate3d(${dotObj.tx}px, ${dotObj.ty}px, ${dotObj.tz}px) scale(1)`;
-            
             setTimeout(() => {
               dotObj.el.style.animation = `blink ${Math.random() * 2 + 2}s infinite`;
             }, 400);
-          }, index * 8); // 長樹速度稍微加快
+          }, index * 8);
         });
 
         setTimeout(() => {
@@ -141,14 +138,14 @@
 
       setTimeout(drawTree, 600);
 
-      star.addEventListener('click', () => {
+      star.addEventListener('click', (e) => {
+        e.preventDefault(); // 防止手機端雙擊縮放
         startConfettiRain();
         tree.style.animationDuration = '2.5s';
         setTimeout(() => { tree.style.animationDuration = '15s'; }, 4000);
       });
 
       function startConfettiRain() {
-        // 彩帶也換成金、銀、白、淺藍雪花色
         const confettiColors = ['#FFD700', '#FFFFFF', '#C0C0C0', '#B0E0E6'];
         for (let i = 0; i < 150; i++) {
           setTimeout(() => {
@@ -158,7 +155,7 @@
             c.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
             const duration = Math.random() * 3 + 2.5;
             c.style.animationDuration = duration + 's';
-            c.style.borderRadius = i % 2 === 0 ? '50%' : '0'; // 圓點（雪花）與方塊混合
+            c.style.borderRadius = i % 2 === 0 ? '50%' : '0';
             document.body.appendChild(c);
             setTimeout(() => c.remove(), duration * 1000);
           }, i * 20);
